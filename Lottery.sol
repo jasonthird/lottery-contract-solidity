@@ -45,6 +45,10 @@ contract Lottery{
         return items.length;
     }
 
+    function winnerGetter() public view returns(address[] memory) {
+        return winners;
+    }
+
     function addMoreItems(uint _itemCount) public onlyOwner {
         require(stage == Stage.Init);
         for(uint i = 0; i < _itemCount; i++) {
@@ -85,18 +89,22 @@ contract Lottery{
     }
 
     event WinnerEvent(address winner,uint item, uint lotteryNumber);
-
+    
     function revealWinners() public onlyOwner {
-        //check if the stage is bid
         require(stage == Stage.Done);
+        require(winners.length <= items.length);
+
         //pick the winners
         uint randomIndex = 0;
-        for(uint i = 0; i < items.length; i++) {
+        for(uint i = winners.length; i < items.length; i++) {
             if(items[i].itemTokens.length != 0) {
-                //not that secured, if used in a more serius project find a better way to 
                 randomIndex = (block.number / items.length + block.timestamp / items.length) % items[i].itemTokens.length;
                 winners.push(bidders[randomIndex].addr);
                 emit WinnerEvent(bidders[randomIndex].addr,i,lotteryNumber);
+            }
+            if(items[i].itemTokens.length == 0) {
+                winners.push(address(0));
+                emit WinnerEvent(address(0),i,lotteryNumber);
             }
         }
     }
@@ -111,7 +119,7 @@ contract Lottery{
         payable(beneficiary).transfer(address(this).balance);
     }
 
-    function reset() public onlyOwner(){
+    function reset(uint _itemCount) public onlyOwner(){
         //reset the state of the contract
         delete bidders;
         delete items;
@@ -119,6 +127,9 @@ contract Lottery{
         bidderCount = 0;
         stage = Stage.Init;
         lotteryNumber++;
+        for(uint i = 0; i < _itemCount; i++) {
+            items.push(Item(i, new uint[](0)));
+        }
     }    
 
 }
