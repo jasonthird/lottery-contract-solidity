@@ -98,6 +98,7 @@ contract Lottery{
         uint randomIndex = 0;
         for(uint i = winners.length; i < items.length; i++) {
             if(items[i].itemTokens.length != 0) {
+                //not a true random number, but good enough for this
                 randomIndex = (block.number / items.length + block.timestamp / items.length) % items[i].itemTokens.length;
                 winners.push(bidders[randomIndex].addr);
                 emit WinnerEvent(bidders[randomIndex].addr,i,lotteryNumber);
@@ -121,6 +122,9 @@ contract Lottery{
 
     function reset(uint _itemCount) public onlyOwner(){
         //reset the state of the contract
+        for(uint i = 0; i < bidders.length; i++) {
+            delete tokenDetails[bidders[i].addr];
+        }
         delete bidders;
         delete items;
         delete winners;

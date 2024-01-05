@@ -1,5 +1,20 @@
 {
 
+    function cleanup_t_uint256(value) -> cleaned {
+        cleaned := value
+    }
+
+    function abi_encode_t_uint256_to_t_uint256_fromStack(value, pos) {
+        mstore(pos, cleanup_t_uint256(value))
+    }
+
+    function abi_encode_tuple_t_uint256__to_t_uint256__fromStack_reversed(headStart , value0) -> tail {
+        tail := add(headStart, 32)
+
+        abi_encode_t_uint256_to_t_uint256_fromStack(value0,  add(headStart, 0))
+
+    }
+
     function cleanup_t_uint160(value) -> cleaned {
         cleaned := and(value, 0xffffffffffffffffffffffffffffffffffffffff)
     }
@@ -29,10 +44,6 @@
 
     function revert_error_c1322bf8034eace5e0b5c7295db60986aa89aae5e0ea0873e4689e076861a5db() {
         revert(0, 0)
-    }
-
-    function cleanup_t_uint256(value) -> cleaned {
-        cleaned := value
     }
 
     function validator_revert_t_uint256(value) {
@@ -72,17 +83,6 @@
 
             value0 := abi_decode_t_uint256(add(headStart, offset), dataEnd)
         }
-
-    }
-
-    function abi_encode_t_uint256_to_t_uint256_fromStack(value, pos) {
-        mstore(pos, cleanup_t_uint256(value))
-    }
-
-    function abi_encode_tuple_t_uint256__to_t_uint256__fromStack_reversed(headStart , value0) -> tail {
-        tail := add(headStart, 32)
-
-        abi_encode_t_uint256_to_t_uint256_fromStack(value0,  add(headStart, 0))
 
     }
 
@@ -147,15 +147,24 @@
 
     }
 
-    function panic_error_0x32() {
-        mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
-        mstore(4, 0x32)
-        revert(0, 0x24)
-    }
-
     function panic_error_0x11() {
         mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
         mstore(4, 0x11)
+        revert(0, 0x24)
+    }
+
+    function checked_add_t_uint256(x, y) -> sum {
+        x := cleanup_t_uint256(x)
+        y := cleanup_t_uint256(y)
+        sum := add(x, y)
+
+        if gt(x, sum) { panic_error_0x11() }
+
+    }
+
+    function panic_error_0x32() {
+        mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+        mstore(4, 0x32)
         revert(0, 0x24)
     }
 
@@ -180,6 +189,14 @@
         revert(0, 0x24)
     }
 
+    function checked_div_t_uint256(x, y) -> r {
+        x := cleanup_t_uint256(x)
+        y := cleanup_t_uint256(y)
+        if iszero(y) { panic_error_0x12() }
+
+        r := div(x, y)
+    }
+
     function mod_t_uint256(x, y) -> r {
         x := cleanup_t_uint256(x)
         y := cleanup_t_uint256(y)
@@ -187,13 +204,21 @@
         r := mod(x, y)
     }
 
-    function checked_add_t_uint256(x, y) -> sum {
-        x := cleanup_t_uint256(x)
-        y := cleanup_t_uint256(y)
-        sum := add(x, y)
+    function abi_encode_tuple_t_address_t_uint256_t_uint256__to_t_address_t_uint256_t_uint256__fromStack_reversed(headStart , value2, value1, value0) -> tail {
+        tail := add(headStart, 96)
 
-        if gt(x, sum) { panic_error_0x11() }
+        abi_encode_t_address_to_t_address_fromStack(value0,  add(headStart, 0))
 
+        abi_encode_t_uint256_to_t_uint256_fromStack(value1,  add(headStart, 32))
+
+        abi_encode_t_uint256_to_t_uint256_fromStack(value2,  add(headStart, 64))
+
+    }
+
+    function panic_error_0x41() {
+        mstore(0, 35408467139433450592217433187231851964531694900788300625387963629091585785856)
+        mstore(4, 0x41)
+        revert(0, 0x24)
     }
 
 }
