@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 struct Item {
     uint itemId;
-    uint[] itemTokens;
+    address[] itemTokens;
 }
 
 struct Person {
@@ -37,7 +37,7 @@ contract Lottery{
     constructor(uint _itemCount) {
         beneficiary = msg.sender;
         for(uint i = 0; i < _itemCount; i++) {
-            items.push(Item(i, new uint[](0)));
+            items.push(Item(i, new address[](0)));
         }
     }
 
@@ -52,7 +52,7 @@ contract Lottery{
     function addMoreItems(uint _itemCount) public onlyOwner {
         require(stage == Stage.Init);
         for(uint i = 0; i < _itemCount; i++) {
-            items.push(Item(i, new uint[](0)));
+            items.push(Item(i, new address[](0)));
         }
     }
 
@@ -85,7 +85,7 @@ contract Lottery{
         //deduct the tokens from the person
         tokenDetails[msg.sender].remainingTokens -= _count;
         //add the tokens to the item
-        items[_itemId].itemTokens.push(_count);
+        items[_itemId].itemTokens.push(msg.sender);
     }
 
     event WinnerEvent(address winner,uint item, uint lotteryNumber);
@@ -98,9 +98,8 @@ contract Lottery{
         uint randomIndex = 0;
         for(uint i = winners.length; i < items.length; i++) {
             if(items[i].itemTokens.length != 0) {
-                //not a true random number, but good enough for this
                 randomIndex = (block.number / items.length + block.timestamp / items.length) % items[i].itemTokens.length;
-                winners.push(bidders[randomIndex].addr);
+                winners.push(items[i].itemTokens[randomIndex]);
                 emit WinnerEvent(bidders[randomIndex].addr,i,lotteryNumber);
             }
             if(items[i].itemTokens.length == 0) {
@@ -120,20 +119,14 @@ contract Lottery{
         payable(beneficiary).transfer(address(this).balance);
     }
 
-    function reset(uint _itemCount) public onlyOwner(){
+    function reset() public onlyOwner(){
         //reset the state of the contract
-        for(uint i = 0; i < bidders.length; i++) {
-            delete tokenDetails[bidders[i].addr];
-        }
         delete bidders;
         delete items;
         delete winners;
         bidderCount = 0;
         stage = Stage.Init;
         lotteryNumber++;
-        for(uint i = 0; i < _itemCount; i++) {
-            items.push(Item(i, new uint[](0)));
-        }
     }    
 
 }
