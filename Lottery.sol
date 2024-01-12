@@ -85,7 +85,9 @@ contract Lottery{
         //deduct the tokens from the person
         tokenDetails[msg.sender].remainingTokens -= _count;
         //add the tokens to the item
-        items[_itemId].itemTokens.push(msg.sender);
+        for(uint i = 0; i < _count; i++) {
+            items[_itemId].itemTokens.push(msg.sender);
+        }
     }
 
     event WinnerEvent(address winner,uint item, uint lotteryNumber);
