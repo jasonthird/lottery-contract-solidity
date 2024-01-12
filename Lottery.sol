@@ -102,7 +102,7 @@ contract Lottery{
             if(items[i].itemTokens.length != 0) {
                 randomIndex = (block.number / items.length + block.timestamp / items.length) % items[i].itemTokens.length;
                 winners.push(items[i].itemTokens[randomIndex]);
-                emit WinnerEvent(bidders[randomIndex].addr,i,lotteryNumber);
+                emit WinnerEvent(items[i].itemTokens[randomIndex],i,lotteryNumber);
             }
             if(items[i].itemTokens.length == 0) {
                 winners.push(address(0));
@@ -121,14 +121,20 @@ contract Lottery{
         payable(beneficiary).transfer(address(this).balance);
     }
 
-    function reset() public onlyOwner(){
+    function reset(uint _itemCount) public onlyOwner(){
         //reset the state of the contract
+        for(uint i = 0; i < bidders.length; i++) {
+            delete tokenDetails[bidders[i].addr];
+        }
         delete bidders;
         delete items;
         delete winners;
         bidderCount = 0;
         stage = Stage.Init;
         lotteryNumber++;
+        for(uint i = 0; i < _itemCount; i++) {
+            items.push(Item(i, new address[](0)));
+        }
     }    
 
 }
